@@ -1,0 +1,10 @@
+services:
+  dim_feedback.mailer:
+    class: Dim\TodoBundle\Services\Mailer
+    arguments: ["@mailer", "@templating"]
+  dim_feedback.generator:
+    class: Dim\TodoBundle\Services\Generator
+    arguments: []
+  dim_feedback.YahooApi:
+    class: Dim\TodoBundle\Services\YahooApi
+    arguments: []

@@ -1,0 +1,29 @@
+{% extends 'DimTodoBundle:Default:base.html.twig' %}
+
+{% block body %}
+    <h1>Акция</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Название</th>
+                <td>{{ stoke.name }}</td>
+            </tr>
+            <tr>
+                <th>Коллиество</th>
+                <td>{{ stoke.count }}</td>
+            </tr>
+            <tr>
+                <th>Дата</th>
+                <td>{% if stoke.date %}{{ stoke.date|date('Y-m-d H:i:s') }}{% endif %}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a class="btn btn-primary" href="{{ path('stoke_index') }}">Назад к списку</a>
+
+    <a class="btn btn-success" href="{{ path('stoke_edit', { 'id': stoke.id }) }}">Редактировать</a>
+
+    {{ form(delete_form) }}
+
+{% endblock %}

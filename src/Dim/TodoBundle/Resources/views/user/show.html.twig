@@ -1,0 +1,22 @@
+{% extends 'DimTodoBundle:Default:base.html.twig' %}
+
+{% block body %}
+    <h1>Профиль</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Email</th>
+                <td>{{ user.email }}</td>
+            </tr>
+            <tr>
+                <th>Ник</th>
+                <td>{{ user.username }}</td>
+            </tr>
+            <tr>
+                <th>Пароль</th>
+                <td><a href="{{ path('user_repass', {'id': app.user.id}) }}">Сбросить пароль</a></td>
+            </tr>
+        </tbody>
+    </table>
+{% endblock %}

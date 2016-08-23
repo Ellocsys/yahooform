@@ -1,0 +1,68 @@
+{% extends 'DimTodoBundle:Default:base.html.twig' %}
+
+{% block body %}
+    <h1>График стоимости портфеля</h1>
+
+    <div id="curve_chart" style="min-width: 400px; height: 500px; margin: 0 auto"></div>
+
+    <a class="btn btn-primary" href="{{ path('stoke_index') }}">Назад к списку</a>
+
+{% endblock %}
+
+{% block javascripts %}
+    <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s=" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+         
+         var data = new google.visualization.DataTable();
+
+         //Запрашиваем данные с сервера
+
+         var jsonData = $.ajax({
+          url: "chartdata",
+          dataType: "json",
+          async: false
+          });
+
+         // Строим таблицу данных
+
+         data.addColumn('date', 'Дата');
+         data.addColumn('number', 'Закрытие');
+         data.addColumn('number', 'Высочайшая');
+         data.addColumn('number', 'Самая низкая');
+         data.addColumn('number', 'Открытие');
+         // data.addColumn('number', 'Volume'); Я без понятия что означает volume, поэтому уберу
+
+
+         $.each(jsonData.responseJSON, function(i,jsonData){
+            var date = new Date(jsonData.Date.toString().replace(/^(\d\d\d\d)(\d\d)(\d\d)$/, "$1/$2/$3"));
+            var close = jsonData.close;
+            var high = jsonData.high;
+            var low = jsonData.low;
+            var open = jsonData.open;
+            // var volume = jsonData.volume;
+            data.addRow([date, close, high, low, open]);
+        });
+
+        var options = {
+          title: 'Стоимость портфеля',
+          curveType: 'function',
+          legend: { position: 'bottom' },
+          animation:{ 
+            duration: 1000, 
+            easing: 'out', 
+            startup: true
+          }
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+
+        chart.draw(data, options);
+      }
+    </script>
+
+{% endblock %}

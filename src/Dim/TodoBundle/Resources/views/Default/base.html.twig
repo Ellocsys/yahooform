@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>{% block title %}Welcome!{% endblock %}</title>
+        {% block stylesheets %}{% endblock %}
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    </head>
+    <body class="container-fluid">
+        {% if app.user %}
+            <ul class="nav nav-tabs">
+                <li role="presentation" class="{% if app.request.attributes.get('_route') matches '/stoke_*/' %}active{% endif %}">
+                    <a href="{{ path('stoke_index') }}">Акции</a>
+                </li>
+                <li role="presentation" class="{% if app.request.attributes.get('_route') == 'chart' %}active{% endif %}" >
+                    <a href="{{ path('chart')}}">Стоимость портфеля</a>
+                </li>
+                <li role="presentation" class="{% if app.request.attributes.get('_route') == 'user_show' %}active{% endif %}" >
+                    <a href="{{ path('user_show', {'id': app.user.id}) }}">Профиль</a>
+                </li>
+                <li role="presentation" class="{% if app.request.attributes.get('_route') == 'user_repass' %}active{% endif %}">
+                    <a href="{{ path('user_repass', {'id': app.user.id}) }}">Сбросить пароль</a>
+                </li>
+                <li role="presentation" class="{% if app.request.attributes.get('_route') == 'user_logout' %}active{% endif %}">
+                    <a href="{{ path('user_logout') }}">Выйти</a>
+                </li>
+            </ul> 
+        {% endif %}
+        {% if app.session.flashBag.has('alert') %}
+            <div class="alert alert-danger">
+                {% for msg in app.session.flashBag.get('alert') %}
+                    {{ msg }}
+                {% endfor %}
+            </div>
+        {% endif %} 
+        {% block body %}{% endblock %}
+        {% block javascripts %}{% endblock %}
+    </body>
+</html>

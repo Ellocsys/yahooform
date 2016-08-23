@@ -1,0 +1,8 @@
+dim_todo:
+    resource: "@DimTodoBundle/Controller/"
+    type:     annotation
+    prefix:   /
+
+# app:
+#     resource: "@AppBundle/Controller/"
+#     type:     annotation
