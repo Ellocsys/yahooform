@@ -4,91 +4,87 @@ namespace Dim\TodoBundle\Services;
 
 // Сервис для работы с yahooApi
 
+class YahooApi
+{
+    // Метод для получения данных для графика для оной компании(Для нескольких сразу не нашел способа)
+    // Принимает обьект Stoke и период
+    // Возвращает jsonp ответ
 
-class YahooApi {
+    public function getChartData($stoke = 'goog', $period = '2y')
+    {
 
+        //Формируем данные для запроса
 
-	// Метод для получения данных для графика для оной компании(Для нескольких сразу не нашел способа)
-	// Принимает обьект Stoke и период 
-	// Возвращает jsonp ответ
+        //Формируем запрос
 
-	public function getChartData($stoke = 'goog', $period = '2y') {
+        $symbol = $stoke->getName();
 
-		//Формируем данные для запроса
+        $url = "chartapi.finance.yahoo.com/instrument/1.0/$symbol/chartdata;type=quote;range=$period/json";
 
-		//Формируем запрос
+        $ch = curl_init();
 
-		$symbol = $stoke->getName();
+        curl_setopt($ch, CURLOPT_URL, $url);
 
-		$url = "chartapi.finance.yahoo.com/instrument/1.0/$symbol/chartdata;type=quote;range=$period/json";
-		
-		$ch = curl_init();
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
-		curl_setopt($ch, CURLOPT_URL, $url);
+        $output = curl_exec($ch);
 
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_close($ch);
 
-		$output = curl_exec($ch);
+        return $output;
+    }
 
-		curl_close($ch);
+    //Получение данных по всем акциям пользователя
+    //Принимает массив обьектов stoke и период
+    //Возвращает массив массивов
 
-		return $output;
+    public function getPortfolioPrice(array $symbol, $period = '2y')
+    {
+        $outer = [];
 
-	}
+        foreach ($symbol as $key => $value) {
 
+            //получаем данные по акции
 
-	//Получение данных по всем акциям пользователя
-	//Принимает массив обьектов stoke и период
-	//Возвращает массив массивов
+        $jsonp = $this->getChartData($value);
 
-	public function getPortfolioPrice(array $symbol, $period = '2y') {
-		$outer = [];
+            //обрезаем обкертку jsonp
 
-		foreach ($symbol as $key => $value) {
+        $jsonp = substr($jsonp, strpos($jsonp, '('));
 
-			//получаем данные по акции
+            $json_string = json_decode(trim($jsonp, '();'), true);
 
-	    $jsonp = $this->getChartData($value);
-	      
-			//обрезаем обкертку jsonp
+            //если акции нет в базе(тогда ответ null) пропускаем и переходим к следующей
 
-	    $jsonp = substr($jsonp, strpos($jsonp, '('));
+            if ($json_string == null) {
+                continue;
+            }
 
-			$json_string = json_decode(trim($jsonp,'();'), true);
+            //Если это первый проход,то инициализируем элементы массива, если нет, то просто прибвляем к имеющимся
+            // count - колличество акции этого типа
+            $count = $value->getCount();
 
-			//если акции нет в базе(тогда ответ null) пропускаем и переходим к следующей
+            if (empty($outer)) {
+                foreach ($json_string['series'] as $key => $item) {
+                    $outer[$key]['Date'] = $item['Date'];
+                    $outer[$key]['close'] = $item['close'] * $count;
+                    $outer[$key]['high'] = $item['high'] * $count;
+                    $outer[$key]['low'] = $item['low'] * $count;
+                    $outer[$key]['open'] = $item['open'] * $count;
+                    $outer[$key]['volume'] = $item['volume'] * $count;
+                }
+            } else {
+                foreach ($json_string['series'] as $key => $item) {
+                    $outer[$key]['Date'] = $item['Date'];
+                    $outer[$key]['close'] += $item['close'] * $count;
+                    $outer[$key]['high'] += $item['high'] * $count;
+                    $outer[$key]['low'] += $item['low'] * $count;
+                    $outer[$key]['open'] += $item['open'] * $count;
+                    $outer[$key]['volume'] += $item['volume'] * $count;
+                }
+            }
+        }
 
-			if ($json_string == null){continue;}
-			
-			//Если это первый проход,то инициализируем элементы массива, если нет, то просто прибвляем к имеющимся
-			// count - колличество акции этого типа 
-			$count = $value->getCount();
-
-			if (empty($outer) ){
-				
-				foreach ($json_string['series'] as $key => $item) {
-					$outer[$key]['Date'] = $item['Date'];
-					$outer[$key]['close'] = $item['close'] * $count;
-					$outer[$key]['high'] = $item['high'] * $count;
-					$outer[$key]['low'] = $item['low'] * $count;
-					$outer[$key]['open'] = $item['open'] * $count;
-					$outer[$key]['volume'] = $item['volume'] * $count;
-				}
-			}
-			else{
-
-				foreach ($json_string['series'] as $key => $item) {
-					$outer[$key]['Date'] = $item['Date'];
-					$outer[$key]['close'] += $item['close'] * $count;
-					$outer[$key]['high'] += $item['high'] * $count;
-					$outer[$key]['low'] += $item['low'] * $count;
-					$outer[$key]['open'] += $item['open'] * $count;
-					$outer[$key]['volume'] += $item['volume'] * $count;
-				}
-			}
-			
-		}
-
-		return $outer ;
-	}
+        return $outer;
+    }
 }

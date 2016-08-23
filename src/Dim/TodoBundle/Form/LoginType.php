@@ -9,24 +9,27 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class LoginType extends AbstractType {
-	/**
-	 * @param FormBuilderInterface $builder
-	 * @param array $options
-	 */
-	public function buildForm(FormBuilderInterface $builder, array $options) {
-		$builder
-			->add('username', TextType::class, ['block_name' => '_username'])
-			->add('password', PasswordType::class, ['block_name' => '_password'])
-			->add('Вход', SubmitType::class);
-	}
+class LoginType extends AbstractType
+{
+    /**
+     * @param FormBuilderInterface $builder
+     * @param array                $options
+     */
+    public function buildForm(FormBuilderInterface $builder, array $options)
+    {
+        $builder
+            ->add('username', TextType::class, ['block_name' => '_username'])
+            ->add('password', PasswordType::class, ['block_name' => '_password'])
+            ->add('Вход', SubmitType::class);
+    }
 
-	/**
-	 * @param OptionsResolver $resolver
-	 */
-	public function configureOptions(OptionsResolver $resolver) {
-		$resolver->setDefaults(array(
-			'data_class' => 'Dim\TodoBundle\Entity\User',
-		));
-	}
+    /**
+     * @param OptionsResolver $resolver
+     */
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefaults(array(
+            'data_class' => 'Dim\TodoBundle\Entity\User',
+        ));
+    }
 }
